@@ -9,7 +9,7 @@ const getChatResponse = async (req, res) => {
         let history = conversationManager.getHistory(conversationId);
         history.push({ role: 'user', content: message });
         
-        // Call OpenRouter API with fixed model
+        // Call OpenRouter API
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -17,7 +17,7 @@ const getChatResponse = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'microsoft/r1-distill-llama-70b', // Fixed model
+                model: 'microsoft/wizardlm-2-8x22b',
                 messages: [
                     { 
                         role: "system", 
