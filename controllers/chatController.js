@@ -4,7 +4,7 @@ const conversationManager = new ConversationManager();
 
 const getChatResponse = async (req, res) => {
     try {
-        const { message, conversationId = 'default', model = 'qwen/qwen-3-4b:free' } = req.body;
+        const { message, conversationId = 'default', model = 'qwen/qwen-3-4b' } = req.body;
         
         let history = conversationManager.getHistory(conversationId);
         history.push({ role: 'user', content: message });
@@ -17,7 +17,7 @@ const getChatResponse = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: model, // Use the model selected in frontend
+                model: model, // Use the model selected in frontend (without :free)
                 messages: [
                     { 
                         role: "system", 
