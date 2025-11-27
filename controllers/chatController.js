@@ -4,12 +4,12 @@ const conversationManager = new ConversationManager();
 
 const getChatResponse = async (req, res) => {
     try {
-        const { message, conversationId = 'default' } = req.body;
+        const { message, conversationId = 'default', model = 'qwen/qwen-3-4b:free' } = req.body;
         
         let history = conversationManager.getHistory(conversationId);
         history.push({ role: 'user', content: message });
         
-        // Call OpenRouter API
+        // Call OpenRouter API with selected model
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -17,7 +17,7 @@ const getChatResponse = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'microsoft/wizardlm-2-8x22b',
+                model: model, // Use the model selected in frontend
                 messages: [
                     { 
                         role: "system", 
