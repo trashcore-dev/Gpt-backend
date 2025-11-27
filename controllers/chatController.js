@@ -38,7 +38,10 @@ const getChatResponse = async (req, res) => {
         
     } catch (error) {
         console.error('API Error:', error);
-        res.status(500).json({ error: 'Error connecting to OpenAI API' });
+        res.status(500).json({ 
+            error: 'Error connecting to OpenAI API',
+            details: error.message
+        });
     }
 };
 
