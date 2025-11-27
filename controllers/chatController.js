@@ -4,14 +4,12 @@ const conversationManager = new ConversationManager();
 
 const getChatResponse = async (req, res) => {
     try {
-        const { message, conversationId = 'default', model = 'google/gemini-flash-1.5' } = req.body;
+        const { message, conversationId = 'default' } = req.body;
         
         let history = conversationManager.getHistory(conversationId);
         history.push({ role: 'user', content: message });
         
-        console.log('Model being used:', model); // Debug log
-        
-        // Call OpenRouter API with selected model
+        // Call OpenRouter API with fixed model
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -19,7 +17,7 @@ const getChatResponse = async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: model, // Use the model selected in frontend
+                model: 'microsoft/r1-distill-llama-70b', // Fixed model
                 messages: [
                     { 
                         role: "system", 
@@ -30,11 +28,8 @@ const getChatResponse = async (req, res) => {
             })
         });
         
-        console.log('Response status:', response.status); // Debug log
-        
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('API Error response:', errorData); // Debug log
             throw new Error(errorData.error?.message || `API Error: ${response.status}`);
         }
         
