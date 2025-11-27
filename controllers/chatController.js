@@ -4,7 +4,7 @@ const conversationManager = new ConversationManager();
 
 const getChatResponse = async (req, res) => {
     try {
-        const { message, conversationId = 'default', model = 'google/gemini-2.0-flash' } = req.body;
+        const { message, conversationId = 'default', model = 'google/gemini-flash-1.5' } = req.body;
         
         let history = conversationManager.getHistory(conversationId);
         history.push({ role: 'user', content: message });
