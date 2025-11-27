@@ -1,9 +1,4 @@
-const OpenAI = require('openai');
 const { ConversationManager } = require('../utils/conversationManager');
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
 
 const conversationManager = new ConversationManager();
 
@@ -14,19 +9,32 @@ const getChatResponse = async (req, res) => {
         let history = conversationManager.getHistory(conversationId);
         history.push({ role: 'user', content: message });
         
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4-turbo",
-            messages: [
-                { 
-                    role: "system", 
-                    content: "You are a helpful AI assistant with knowledge up to November 27, 2025." 
-                },
-                ...history.slice(-20)
-            ],
-            temperature: 0.7
+        // Call OpenRouter API
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'microsoft/wizardlm-2-8x22b',
+                messages: [
+                    { 
+                        role: "system", 
+                        content: "You are a helpful AI assistant with knowledge up to November 27, 2025." 
+                    },
+                    ...history.slice(-20)
+                ]
+            })
         });
-
-        const aiResponse = completion.choices[0].message.content;
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const aiResponse = data.choices[0].message.content;
         
         history.push({ role: 'assistant', content: aiResponse });
         conversationManager.updateHistory(conversationId, history);
@@ -39,7 +47,7 @@ const getChatResponse = async (req, res) => {
     } catch (error) {
         console.error('API Error:', error);
         res.status(500).json({ 
-            error: 'Error connecting to OpenAI API',
+            error: 'Error connecting to OpenRouter API',
             details: error.message
         });
     }
